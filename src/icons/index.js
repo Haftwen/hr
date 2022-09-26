@@ -10,7 +10,18 @@ const req = require.context('./svg', false, /\.svg$/)
 // console.log(req)
 // const path = './dashboard.svg'
 // console.log(req(path))
-// req.keys() 方法
+// // req.keys() 方法
 // console.log(req.keys())
+// 声明了一个函数
 const requireAll = (requireContext) => { return requireContext.keys().map(requireContext) }
 requireAll(req)
+
+// const fn = require.context('./svg', false, /\.svg$/)
+// fn.keys()==>匹配上的.svg文件的路径组成的数组
+// function requireAll(fn) {
+//   return fn.keys().map((item) => {
+//     return fn(item)
+//   })
+// }
+
+// requireAll(fn)

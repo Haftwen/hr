@@ -1,13 +1,29 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="loginForm" class="login-form" :model="loginForm" :rules="rules" auto-complete="on" label-position="left">
       <div class="title-container">
         <h3 class="title">
           <img src="@/assets/common/login-logo.png" alt="">
         </h3>
       </div>
-
-      <el-button class="loginBtn" style="width:100%;margin-bottom:30px;">Login</el-button>
+      <!-- 用户名框 -->
+      <el-form-item prop="mobile">
+        <span class="svg-container el-icon-user-solid" />
+        <el-input v-model="loginForm.mobile" />
+      </el-form-item>
+      <!-- 密码框 -->
+      <el-form-item prop="password">
+        <!-- 给svg-icon标签加样式，要用一个容器(span)包裹一下，在容器上加样式 -->
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input ref="pwd" v-model="loginForm.password" :type="passwordType" />
+        <!-- 密码盒子的切换 点击眼睛睁开 再点击眼睛闭上 眼睛睁开能看见文字 眼睛闭上看不见文字 -->
+        <span class="svg-container" @click="showPwd">
+          <svg-icon :icon-class="passwordType==='password'?'eye':'eye-open'" />
+        </span>
+      </el-form-item>
+      <el-button class="loginBtn" :loading="loading" @click="login">登录</el-button>
       <div class="tips">
         <span style="margin-right:20px;">账号: 13800000002</span>
         <span> 密码: 123456</span>
@@ -20,16 +36,81 @@
   2. 在项目里如何配置这几个环境  通过 .env 配置 base api
   开发环境的接口前缀 /api
   线上环境的接口前缀 /prod-api
+  3.el-form-item绑定对应的模块，el-input绑定对应的值
+  手机号码必填按照国家标准
+  密码必填 格式6-16位
    -->
 </template>
 <script>
+// 导入校验手机号的校验规则
+import { validMobile } from '@/utils/validate'
 export default {
   name: 'Login',
   data() {
+    const phoneValid = (rules, value, callback) => {
+      // console.log(validMobile)
+      if (!validMobile(value)) {
+        // 没通过
+        callback(new Error('格式不正确'))
+      } else {
+        callback()
+      }
+    }
     return {
+      loginForm: {
+        mobile: '13800000002',
+        password: '123456'
+      },
+      passwordType: 'password',
+      // 表单验证规则
+      // 表单校验规则，需和数据名称一致
+      rules: {
+        mobile: [
+          { required: true, message: '手机号码必填', trigger: 'blur' },
+          // 校验正则
+          // { pattern: /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/, message: '手机号码格式不对', trigger: 'blur' }
+          // 自定义校验的方式实现
+          { validator: phoneValid, trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '密码必填', trigger: 'blur' },
+          {	min: 6, max: 16, message: '密码格式不对', trigger: 'blur' }
+        ]
+      },
+      // 是否加载状态
+      loading: false
     }
   },
   methods: {
+    showPwd() {
+      // this.passwordType === 'password' ? this.passwordType = '' : this.passwordType = 'password'
+      if (this.passwordType === 'password') {
+        this.passwordType = ''
+      } else {
+        this.passwordType = 'password'
+      }
+      // 点击的时候还需要让密码框聚焦因为涉及到input框的创建和销毁所以需要在元素创建之后聚焦
+      this.$nextTick(() => {
+        this.$refs.pwd.focus()
+      })
+    },
+    async login() {
+      try {
+        // this.$refs.loginForm.validate() 是一个promise
+        // 如果校验通过 返回值为true
+        // 校验不通过 promise rejected 会报错 被catch捕捉到
+        // 通过登录接口 把数据提供给后端
+        await this.$refs.loginForm.validate()
+        // loading
+        this.loading = true
+        // 发请求
+        await this.$store.dispatch('user/loginAction', this.loginForm)
+        // 实现跳转
+        this.$router.push('/')
+      } finally {
+        this.loading = false
+      }
+    }
   }
 }
 </script>
@@ -37,7 +118,6 @@ export default {
 <style lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
 $bg:#283443;
 $light_gray:#68b0fe;
 $cursor: #fff;
@@ -89,6 +169,10 @@ $cursor: #fff;
     height: 64px;
     line-height: 32px;
     font-size: 24px;
+    width:100%;
+    margin-bottom:30px;
+    border: none;
+    color:#fff;
   }
 
 }
