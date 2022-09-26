@@ -10,6 +10,10 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
+  // created() {
+  // // 测试能用token不
+  //   this.$store.dispatch('user/getUserInfo')
+  // },
   computed: {
     ...mapGetters([
       'name'

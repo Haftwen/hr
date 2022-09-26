@@ -14,7 +14,18 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control权限
-
+// 考虑到自定义指令的复用性所以在这里全局注册自定义指令
+// import { imgerror } from '@/directives'
+// 不想每次都这样全部引入我们可以把directives中的所有东西都引入进来
+import * as directives from '@/directives'
+// console.log(directives)
+// console.log(Object.keys(directives)) // 名字组成的数组
+// 注册全局自定义指令
+// Vue.directive('imgerror', imgerror)
+// 也不需要一个个注册了直接全给注册了
+Object.keys(directives).forEach(ele => {
+  Vue.directive(ele, directives[ele])
+})
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
