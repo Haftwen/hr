@@ -21,10 +21,13 @@ const store = new Vuex.Store({
         // 结构需要一模一样
         return {
           user: {
-            token: user.token
+            token: user.token,
+            hrsassTime: user.hrsassTime
           }
         }
       }
+      // 存储完token以后把当前时间保存(另一种持久化的写法)
+      // paths: ['user.hrsassTime']
     })
   ],
   modules: {

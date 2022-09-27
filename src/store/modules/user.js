@@ -4,7 +4,8 @@ export default {
   namespaced: true,
   state: {
     token: null,
-    userInfo: {}// 如果是null
+    userInfo: {}, // 如果是null
+    hrsassTime: 0
   },
   mutations: {
     SET_TOKEN(state, token) {
@@ -17,6 +18,14 @@ export default {
     // 当我们退出的时候需要移除用户信息
     REMOVE_USER_INFO(state, userInfo) {
       state.userInfo = {}
+    },
+    // 退出清除token，插件与本地自动同步
+    REMOVE_TOKEN(state) {
+      state.token = null
+    },
+    // 解决401token超时失效问题（思路先获取当前存入token的时间，根据时间差来判定是不是过期）
+    SET_HR_TIME(state, time) {
+      state.hrsassTime = time
     }
   },
   actions: {
@@ -24,6 +33,8 @@ export default {
       // 调接口 响应拦截器处理完就只需要data了
       const data = await login(loginData)
       commit('SET_TOKEN', data)
+      // 存储完token以后把当前时间保存
+      commit('SET_HR_TIME', +new Date())
     },
     // 获取用户信息的请求
     async getUserInfo({ commit }) {
@@ -46,6 +57,12 @@ export default {
       // 数据返回出去后边使用，但是直接返回存在问题，因为是复杂数据类型，所以可以在外边修改data这样会导致vuex里的数据也被修改，需要解决
       // 解决方案：我们可以通过json字符串来解决
       return data
+    },
+    // 清除token和删除用户信息
+    logout({ commit }) {
+      // 清除原来的数据和token
+      commit('REMOVE_USER_INFO')
+      commit('REMOVE_TOKEN')
     }
   }
 }

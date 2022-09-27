@@ -1,7 +1,16 @@
 // axios的二次封装
+import router from '@/router'
 import store from '@/store'
 import axios from 'axios'
 import { Message } from 'element-ui'
+// 为了便于维护在外部定义超时的时间差
+const TimeOut = 3600 // s
+// 定义一个函数去对比时间是否超时
+function IsCheckTimeOut() {
+  const currentTime = Date.now() // 时间2当前调用接口的时间+new Date() 都是返回当前时间
+  const timeStamp = (currentTime - store.getters.hrsassTime) / 1000 // 1s==1000ms
+  return timeStamp > TimeOut // true超时 false没超时
+}
 // 通过axios.create()创建axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
@@ -11,6 +20,14 @@ const service = axios.create({
 service.interceptors.request.use(config => {
   // console.log(config)
   if (store.getters.token) {
+    // 由于每次发送请求都要判断token是不是超时所以定义在请求拦截器更合适
+    if (IsCheckTimeOut()) { // 超时
+      // 删除数据和token跳转到登录页面
+      store.dispatch('user/logout')
+      router.push('/login')
+      // 返回错误提示超时 请求返回回来的是一个peomise所以要用promise的拒绝状态
+      return Promise.reject(new Error('token 超时'))
+    }
     config.headers.Authorization = `Bearer ${store.getters.token}`
   }
   // 返回处理后的cofig
@@ -35,7 +52,16 @@ service.interceptors.response.use(response => {
   Message.error(message)
   return Promise.reject(new Error(message))
 }, error => {
-  Message.error(error.message)
+  // console.log(Promise.reject(error))
+  // 当token变化报401就是token出问题了再去让用户登录
+  if (error.response && error.response.status === 401) {
+    // 删除数据和token跳转到登录页面
+    store.dispatch('user/logout')
+    router.push('/login')
+    Message.error('token失效！')
+  } else {
+    Message.error(error.message)
+  }
   return Promise.reject(error)
 })
 export default service

@@ -58,8 +58,10 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
+      // 退出分两步，清除token(用的持久化插件可以同步本地)，和userinfo
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      // 跳转路由到登陆页面
+      this.$router.push(`/login`)
     }
   }
 }
