@@ -1,5 +1,6 @@
 // 获取用户信息的接口
 import request from '@/utils/request.js'
+console.log(request)
 export function getUserInfo() {
   return request({
     url: '/sys/profile',

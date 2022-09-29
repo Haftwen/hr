@@ -1,4 +1,5 @@
 <template>
+  <!-- 这个组件的作用就是布局有侧边栏，顶部栏。主要内容部分 -->
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar class="sidebar-container" />
