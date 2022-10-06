@@ -18,7 +18,7 @@ const service = axios.create({
 })
 // 通过请求拦截器给每个请求加上token，就不用每次都写了
 service.interceptors.request.use(config => {
-  console.log(config)
+  // console.log(config)
   if (store.getters.token) {
     // 由于每次发送请求都要判断token是不是超时所以定义在请求拦截器更合适
     if (IsCheckTimeOut()) { // 超时
