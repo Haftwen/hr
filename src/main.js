@@ -26,6 +26,9 @@ import * as directives from '@/directives'
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
 })
+// 全局注册pagetools组件
+import components from '@/components/index'
+Vue.use(components)
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
