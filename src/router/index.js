@@ -49,6 +49,16 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
+  // 上传excel的路由不要和员工路由一块配置
+  {
+    path: '/import',
+    component: Layout,
+    hidden: true, // 隐藏在左侧菜单中
+    children: [{
+      path: '', // 二级路由path什么都不写 表示二级默认路由
+      component: () => import('@/views/import')
+    }]
+  },
   {
     path: '/',
     component: Layout,
