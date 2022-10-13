@@ -77,3 +77,24 @@ export function importEmployee(data) {
     data
   })
 }
+export function saveEmployeesInfo(data) {
+  return request({
+    url: `/employees/${data.userId}/personalInfo`,
+    method: 'PUT',
+    data
+  })
+}
+// 获取用工的岗位信息
+export const getEmployeeJobInfo = (id) => {
+  return request({
+    url: `/employees/${id}/jobs`
+  })
+}
+// 获取用工的岗位信息
+export const saveEmployeeJobInfo = (data) => {
+  return request({
+    url: `/employees/${data.userId}/jobs`,
+    method: 'PUT',
+    data
+  })
+}

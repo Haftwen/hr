@@ -64,7 +64,7 @@
       <!-- 保存个人信息 -->
       <el-row class="inline-info" type="flex" justify="center">
         <el-col :span="12">
-          <el-button type="primary">保存更新</el-button>
+          <el-button type="primary" @click="savaBasicInfo">保存更新</el-button>
           <el-button @click="$router.back()">返回</el-button>
         </el-col>
       </el-row>
@@ -376,7 +376,7 @@
         <!-- 保存员工信息 -->
         <el-row class="inline-info" type="flex" justify="center">
           <el-col :span="12">
-            <el-button type="primary">保存更新</el-button>
+            <el-button type="primary" @click="saveEmployeesInfo">保存更新</el-button>
             <el-button @click="$router.back()">返回</el-button>
           </el-col>
         </el-row>
@@ -388,8 +388,8 @@
 <script>
 import EmployeeEnum from '@/api/constant/employees.js'
 // 通过接口获取此页面的上半部分信息 第二个接口获取后半个
-import { getUserDetailById, getPersonalDetail } from '@/api/user.js'
-
+import { getUserDetailById, getPersonalDetail, saveUserDetailById } from '@/api/user.js'
+import { saveEmployeesInfo } from '@/api/employees'
 export default {
   data() {
     return {
@@ -463,6 +463,7 @@ export default {
   },
   created() {
     this.getUserDetailById()
+    this.getPersonalDetail()
   },
   methods: {
     async getUserDetailById() {
@@ -471,7 +472,27 @@ export default {
     },
     async getPersonalDetail() {
       const res = await getPersonalDetail(this.userId)
+      // console.log
       this.formData = res
+    },
+    // 点击发送请求，保存用户的下半部分信息
+    async saveEmployeesInfo() {
+      // console.log(1)
+      try {
+        await saveEmployeesInfo(this.formData)
+        this.$message.success('更新成功')
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    // 上半部分保存更新
+    async savaBasicInfo() {
+      try {
+        await saveUserDetailById(this.userInfo)
+        this.$message.success('保存用户信息成功')
+      } catch (error) {
+        this.$message.error('保存失败')
+      }
     }
   }
 }

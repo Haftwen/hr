@@ -2,8 +2,9 @@
   <div class="dashboard-container">
     <div class="app-container">
       <el-card class="box-card">
-        <el-tabs v-model="activeName">
-          <el-tab-pane label="登录账户设置" name="first">
+        <el-tabs v-model="activeName" @tab-click="change">
+          <!-- elementui默认tab是全加载 但是我们不想耗费资源 因此 采用点击组件的懒加载属性 lazy进行优化 -->
+          <el-tab-pane label="登录账户设置" name="first" lazy>
             <!-- 表单 -->
             <el-form ref="form" label-width="80px" :rules="rules" :model="accountInfo">
               <el-form-item label="姓名" prop="username">
@@ -17,10 +18,10 @@
               </el-form-item>
             </el-form>
           </el-tab-pane>
-          <el-tab-pane label="个人详情" name="second">
+          <el-tab-pane label="个人详情" name="second" lazy>
             <userInfo />
           </el-tab-pane>
-          <el-tab-pane label="岗位信息" name="third"><jobInfo /></el-tab-pane>
+          <el-tab-pane label="岗位信息" name="third" lazy><jobInfo /></el-tab-pane>
         </el-tabs>
       </el-card>
     </div>
@@ -30,12 +31,14 @@
 import { getUserDetailById, saveUserDetailById } from '@/api/user.js'
 import userInfo from './components/user-info.vue'
 import jobInfo from './components/job-info.vue'
+// 存储cookie的插件
+import Cookies from 'js-cookie'
 export default {
   name: 'HrsaasDetail',
   components: { userInfo, jobInfo },
   data() {
     return {
-      activeName: 'first',
+      activeName: Cookies.get('activeName') || 'first',
       accountInfo: {},
       rules: {
         username: [{ required: true, message: '请输入名字', trigger: 'blur' },
@@ -69,6 +72,12 @@ export default {
       } catch (error) {
         this.$message.error(error)
       }
+    },
+    // 优化tab栏的停留状态 利用 cookie-js这个包来实现
+    change() {
+      // console.log(this.activeName)
+      Cookies.set('activeName', this.activeName)
+      // 再上边进行处理
     }
   }
 }
