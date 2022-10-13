@@ -39,7 +39,7 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="280">
           <template slot-scope="{row}">
-            <el-button type="text" size="small">查看</el-button>
+            <el-button type="text" size="small" @click="goDetaial(row)">查看</el-button>
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
@@ -193,6 +193,10 @@ export default {
         //         multiHeader: [['手机号', '主要信息', '', '', '', '', '部门']],
         // merges: ['A1:A2', 'B1:F1', 'G1:G2'],
       })
+    },
+    // 点击去详情页
+    goDetaial(row) {
+      this.$router.push('/employees/detail/' + row.id)
     }
   }
 
