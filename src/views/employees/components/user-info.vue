@@ -1,5 +1,6 @@
 <template>
   <div class="user-info">
+    <i class="el-icon-printer" @click="$router.push('/employees/print/' + userId + '?'+'type=personal')" />
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -57,7 +58,8 @@
       <el-row class="inline-info">
         <el-col :span="12">
           <el-form-item label="员工头像">
-            <!-- 放置上传图片 -->
+            <!-- 放置上传图片 如果有图片需要图片回显 -->
+            <UpLoadImg ref="imgAva" :base-url="imgAvatar" @on-success="success" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -91,6 +93,7 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <UpLoadImg ref="upLoadPic" :base-url="employeesPic" @on-success="saveEmployeesImages" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -390,75 +393,79 @@ import EmployeeEnum from '@/api/constant/employees.js'
 // 通过接口获取此页面的上半部分信息 第二个接口获取后半个
 import { getUserDetailById, getPersonalDetail, saveUserDetailById } from '@/api/user.js'
 import { saveEmployeesInfo } from '@/api/employees'
+import UpLoadImg from '@/components/UpLoadImg/index.vue'
 export default {
+  components: { UpLoadImg },
   data() {
     return {
       userId: this.$route.params.id,
-      EmployeeEnum, // 员工枚举数据
+      EmployeeEnum,
       userInfo: {},
       formData: {
         userId: '',
-        username: '', // 用户名
-        sex: '', // 性别
-        mobile: '', // 手机
-        companyId: '', // 公司id
-        departmentName: '', // 部门名称
+        username: '',
+        sex: '',
+        mobile: '',
+        companyId: '',
+        departmentName: '',
         //  onTheJobStatus: '', // 在职状态 no
-        dateOfBirth: '', // 出生日期
-        timeOfEntry: '', // 入职时间
-        theHighestDegreeOfEducation: '', // 最高学历
-        nationalArea: '', // 国家
-        passportNo: '', // 护照号
-        idNumber: '', // 身份证号
-        idCardPhotoPositive: '', // 身份证照正
-        idCardPhotoBack: '', // 身份证照正
-        nativePlace: '', // 籍贯
-        nation: '', // 民族
-        englishName: '', // 英文名字
-        maritalStatus: '', // 婚姻状况
-        staffPhoto: '', // 员工照片
-        birthday: '', // 生日
-        zodiac: '', // 属相
-        age: '', // 年龄
-        constellation: '', // 星座
-        bloodType: '', // 血型
-        domicile: '', // 户籍所在地
-        politicalOutlook: '', // 政治面貌
-        timeToJoinTheParty: '', // 入党时间
-        archivingOrganization: '', // 存档机构
-        stateOfChildren: '', // 子女状态
-        doChildrenHaveCommercialInsurance: '1', // 保险状态
-        isThereAnyViolationOfLawOrDiscipline: '', // 违法违纪状态
-        areThereAnyMajorMedicalHistories: '', // 重大病史
-        qq: '', // QQ
-        wechat: '', // 微信
-        residenceCardCity: '', // 居住证城市
-        dateOfResidencePermit: '', // 居住证办理日期
-        residencePermitDeadline: '', // 居住证截止日期
-        placeOfResidence: '', // 现居住地
-        postalAddress: '', // 通讯地址
-        contactTheMobilePhone: '', // 联系手机
-        personalMailbox: '', // 个人邮箱
-        emergencyContact: '', // 紧急联系人
-        emergencyContactNumber: '', // 紧急联系电话
-        socialSecurityComputerNumber: '', // 社保电脑号
-        providentFundAccount: '', // 公积金账号
-        bankCardNumber: '', // 银行卡号
-        openingBank: '', // 开户行
-        educationalType: '', // 学历类型
-        graduateSchool: '', // 毕业学校
-        enrolmentTime: '', // 入学时间
-        graduationTime: '', // 毕业时间
-        major: '', // 专业
-        graduationCertificate: '', // 毕业证书
-        certificateOfAcademicDegree: '', // 学位证书
-        homeCompany: '', // 上家公司
-        title: '', // 职称
-        resume: '', // 简历
-        isThereAnyCompetitionRestriction: '', // 有无竞业限制
-        proofOfDepartureOfFormerCompany: '', // 前公司离职证明
+        dateOfBirth: '',
+        timeOfEntry: '',
+        theHighestDegreeOfEducation: '',
+        nationalArea: '',
+        passportNo: '',
+        idNumber: '',
+        idCardPhotoPositive: '',
+        idCardPhotoBack: '',
+        nativePlace: '',
+        nation: '',
+        englishName: '',
+        maritalStatus: '',
+        staffPhoto: '',
+        birthday: '',
+        zodiac: '',
+        age: '',
+        constellation: '',
+        bloodType: '',
+        domicile: '',
+        politicalOutlook: '',
+        timeToJoinTheParty: '',
+        archivingOrganization: '',
+        stateOfChildren: '',
+        doChildrenHaveCommercialInsurance: '1',
+        isThereAnyViolationOfLawOrDiscipline: '',
+        areThereAnyMajorMedicalHistories: '',
+        qq: '',
+        wechat: '',
+        residenceCardCity: '',
+        dateOfResidencePermit: '',
+        residencePermitDeadline: '',
+        placeOfResidence: '',
+        postalAddress: '',
+        contactTheMobilePhone: '',
+        personalMailbox: '',
+        emergencyContact: '',
+        emergencyContactNumber: '',
+        socialSecurityComputerNumber: '',
+        providentFundAccount: '',
+        bankCardNumber: '',
+        openingBank: '',
+        educationalType: '',
+        graduateSchool: '',
+        enrolmentTime: '',
+        graduationTime: '',
+        major: '',
+        graduationCertificate: '',
+        certificateOfAcademicDegree: '',
+        homeCompany: '',
+        title: '',
+        resume: '',
+        isThereAnyCompetitionRestriction: '',
+        proofOfDepartureOfFormerCompany: '',
         remarks: '' // 备注
-      }
+      },
+      imgAvatar: '',
+      employeesPic: ''
     }
   },
   created() {
@@ -468,10 +475,19 @@ export default {
   methods: {
     async getUserDetailById() {
       const res = await getUserDetailById(this.userId)
+      // console.log(res)
+      // 如果有头像 我们需要回显图片
+      if (res.staffPhoto) {
+        this.imgAvatar = res.staffPhoto
+      }
       this.userInfo = res
     },
     async getPersonalDetail() {
       const res = await getPersonalDetail(this.userId)
+      // 如果有员工照片 我们需要回显照片
+      if (res.staffPhoto) {
+        this.employeesPic = res.staffPhoto
+      }
       // console.log
       this.formData = res
     },
@@ -479,23 +495,43 @@ export default {
     async saveEmployeesInfo() {
       // console.log(1)
       try {
+        // 假如网速较慢，点击更行也能生效，因此需要进行判断，如果没上传完不让它更新可以更具loading的状态来判断优化
+        if (this.$refs.imgAva.loading) {
+          return this.$message.error('图片上传还未结束')
+        }
         await saveEmployeesInfo(this.formData)
         this.$message.success('更新成功')
       } catch (error) {
         console.log(error)
       }
     },
+
     // 上半部分保存更新
     async savaBasicInfo() {
       try {
+        // 假如网速较慢，点击更行也能生效，因此需要进行判断，如果没上传完不让它更新可以更具loading的状态来判断优化
+        if (this.$refs.upLoadPic.loading) {
+          return this.$message.error('图片上传还未结束')
+        }
         await saveUserDetailById(this.userInfo)
         this.$message.success('保存用户信息成功')
       } catch (error) {
         this.$message.error('保存失败')
       }
+    },
+    // 第一个图片成功之后需要的处理
+    success(data) {
+      const url = 'https://' + data.Location
+      this.userInfo.staffPhoto = url
+    },
+    // 员工图片
+    saveEmployeesImages(data) {
+      const url = 'https://' + data.Location
+      this.formData.staffPhoto = url
     }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

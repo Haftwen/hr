@@ -17,6 +17,11 @@
     <el-card>
       <el-table v-loading="loading" border :data="list">
         <el-table-column label="序号" sortable="" width="80" type="index" />
+        <el-table-column label="头像">
+          <template slot-scope="{row}">
+            <img :src="row.staffPhoto" style="width:100px;height:100px;" @click="genQrCode(row.staffPhoto)">
+          </template>
+        </el-table-column>
         <el-table-column label="姓名" prop="username" />
         <el-table-column label="工号" prop="workNumber" />
         <el-table-column label="聘用形式" prop="formOfEmployment" :formatter="formatterFn" />
@@ -63,6 +68,14 @@
     </el-row>
     <!-- 新增员工 -->
     <addEmployee :dialog-visible.sync="dialogVisible" @reFresh="getEmployeeList" />
+    <!-- 头像的预览弹层 -->
+    <el-dialog
+      title="预览头像"
+      :visible.sync="dialogVisibleQrCode"
+      width="30%"
+    >
+      <canvas ref="canvas" style="width:400px;height: 400px;" />
+    </el-dialog>
   </div>
 </template>
 
@@ -73,6 +86,8 @@ import { getEmployeeList, delEmployee } from '@/api/employees'
 // 枚举数据的处理
 import EnumHireType from '@/api/constant/employees'
 import addEmployee from './components/AddEmployee.vue'
+// 引入生成二维码的工具
+import QrCode from 'qrcode'
 export default {
   name: 'HrsaasIndex',
   components: {
@@ -89,7 +104,8 @@ export default {
       total: 0, // 总数
       loading: false,
       hireType: EnumHireType.hireType,
-      dialogVisible: false
+      dialogVisible: false,
+      dialogVisibleQrCode: false
     }
   },
 
@@ -197,6 +213,23 @@ export default {
     // 点击去详情页
     goDetaial(row) {
       this.$router.push('/employees/detail/' + row.id)
+    },
+    // 预览头像弹层
+    genQrCode(staffPhoto) {
+      // 如果直接这样写 二维码是显示不出来的 需要 用this.$nextTick
+      // 因为vue是数据驱动视图，数据变化视图也得变化，但是视图的变化是异步的，为什么异步？
+      // 元素的频繁创建销毁，影响性能 等所有数据变化完了 在考虑视图
+      // 等视图更新完以后触发
+      if (!staffPhoto) {
+        return this.$message.error('头像不存在')
+      }
+      this.dialogVisibleQrCode = true
+      this.$nextTick(() => {
+        QrCode.toCanvas(this.$refs.canvas, staffPhoto, function(error) {
+          if (error) console.log(error)
+          console.log('success')
+        })
+      })
     }
   }
 

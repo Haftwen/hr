@@ -23,6 +23,8 @@ import * as directives from '@/directives'
 // 注册全局自定义指令
 // Vue.directive('imgerror', imgerror)
 // 也不需要一个个注册了直接全给注册了
+import Print from 'vue-print-nb'
+Vue.use(Print)
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
 })
